@@ -3,12 +3,11 @@ from fastapi.staticfiles import StaticFiles
 
 from core.config import settings
 from core.database import init_db, engine, get_db
-
+from core.security import hash_password
 from models.user import User
 
 # Import routers
 from router import page_router,auth_router,user_router
-
 
 def create_admin_user():
     """Create default admin user if not exists"""
@@ -20,7 +19,7 @@ def create_admin_user():
                 name="Admin User",
                 email="admin@health.com",
                 password_hash="admin",
-                # password_hash=hash_password("admin"),
+                password_hash=hash_password("admin"),
                 role="ADMIN",
                 age=30,
                 height_cm=175.0,
@@ -40,11 +39,6 @@ def include_router(app):
     # Include routers
     app.include_router(auth_router.router)
     app.include_router(user_router.router)
-    # app.include_router(health.router)
-    # app.include_router(ai.router)
-    # app.include_router(products.router)
-    # app.include_router(blogs.router)
-    # app.include_router(admin.router)
     app.include_router(page_router.router)
 
 def start_application():    
