@@ -18,7 +18,6 @@ def create_admin_user():
             admin = User(
                 name="Admin User",
                 email="admin@health.com",
-                password_hash="admin",
                 password_hash=hash_password("admin"),
                 role="ADMIN",
                 age=30,
