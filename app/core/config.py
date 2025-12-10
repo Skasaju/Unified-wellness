@@ -14,6 +14,6 @@ class Settings:
     ALGORITHM =  os.getenv("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_DAYS = 7
     
-    OPENAI_API_KEY = None
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 settings = Settings()

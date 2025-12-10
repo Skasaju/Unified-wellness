@@ -7,7 +7,7 @@ from core.security import hash_password
 from models.user import User
 
 # Import routers
-from router import page_router,auth_router,user_router
+from router import page_router,auth_router,user_router,ai_router,products_router
 
 def create_admin_user():
     """Create default admin user if not exists"""
@@ -39,6 +39,8 @@ def include_router(app):
     app.include_router(auth_router.router)
     app.include_router(user_router.router)
     app.include_router(page_router.router)
+    app.include_router(ai_router.router)
+    app.include_router(products_router.router)
 
 def start_application():    
     app = FastAPI(title=settings.APP_NAME,version=settings.PROJECT_VERSION)
