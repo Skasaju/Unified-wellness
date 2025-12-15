@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Unified Wellness</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Unified Wellness</h1>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/products" class="active">Products</a>
+                <a href="/blogs">Blogs</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Health & Fitness Products</h1>
+        
+        <div class="toolbar">
+            <input type="text" id="searchInput" placeholder="Search products..." class="search-input">
+            <button id="searchBtn" class="btn-primary">Search</button>
+        </div>
+        
+        <div id="productGrid" class="product-grid"></div>
+    </div>
+
+    <script src="/static/js/products.js"></script>
+</body>
+</html>

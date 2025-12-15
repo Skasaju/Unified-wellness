@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Unified Wellness</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Unified Wellness Admin</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin" class="active">Admin</a>
+                <a href="#" onclick="logout()" class="btn-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>📊 System Analytics</h3>
+                <div id="analytics" class="stats-grid"></div>
+            </div>
+            
+            <div class="dashboard-card full-width">
+                <h3>👥 User Management</h3>
+                <div id="userList" class="table-container"></div>
+            </div>
+            
+            <div class="dashboard-card full-width">
+                <h3>🛍️ Product Management</h3>
+                <button id="addProductBtn" class="btn-primary">Add Product</button>
+                
+                <div id="productForm" class="form-container" style="display:none;">
+                    <h4>Add New Product</h4>
+                    <form id="newProductForm">
+                        <input type="text" id="productName" placeholder="Product Name" required>
+                        <textarea id="productDescription" placeholder="Description" rows="3" required></textarea>
+                        <input type="number" id="productPrice" placeholder="Price" step="0.01" min="0" required>
+                        <select id="productCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="supplements">Supplements</option>
+                            <option value="equipment">Equipment</option>
+                            <option value="nutrition">Nutrition</option>
+                            <option value="accessories">Accessories</option>
+                        </select>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Add Product</button>
+                            <button type="button" id="cancelProduct" class="btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="productList" class="table-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/admin.js"></script>
+</body>
+</html>
