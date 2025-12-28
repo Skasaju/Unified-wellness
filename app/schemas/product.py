@@ -7,6 +7,7 @@ class ProductCreate(BaseModel):
     description: str
     price: float
     category: str
+    image_url: str 
 
 
 class ProductResponse(BaseModel):
@@ -15,6 +16,7 @@ class ProductResponse(BaseModel):
     description: str
     price: float
     category: str
+    image_url: str  
     created_at: datetime
     
     class Config:

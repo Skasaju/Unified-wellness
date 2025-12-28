@@ -28,7 +28,6 @@ function updateNav() {
             <a href="/blogs" class="active">Blogs</a>
             <a href="/profile">Profile</a>
             ${user.role === 'ADMIN' ? '<a href="/admin">Admin</a>' : ''}
-            <span>${user.name}</span>
             <a href="#" onclick="logout()" class="btn-secondary">Logout</a>
         `;
         addBtn.style.display = 'inline-block';

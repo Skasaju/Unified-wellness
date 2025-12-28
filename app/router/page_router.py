@@ -25,6 +25,10 @@ async def dashboard_page():
 async def products_page():
     return FileResponse("static/products.html")
 
+@router.get("/products/{product_id}")
+async def product_detail_page(product_id: int):
+    return FileResponse("static/product-detail.html")
+
 
 @router.get("/blogs")
 async def blogs_page():

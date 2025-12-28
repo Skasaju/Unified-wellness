@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Unified Wellness</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .breadcrumb {
+            padding: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            margin: 0 8px;
+        }
+        
+        .product-detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin: 40px 0;
+        }
+        
+        .product-images {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .main-image {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+        
+        .main-image img {
+            width: 100%;
+            height: 500px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        
+        .thumbnail-images {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .thumbnail {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        
+        .thumbnail:hover,
+        .thumbnail.active {
+            border-color: #007bff;
+        }
+        
+        .thumbnail img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+        }
+        
+        .product-info-section {
+            padding: 20px 0;
+        }
+        
+        .product-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+        
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .stars {
+            color: #ffa500;
+            font-size: 18px;
+        }
+        
+        .rating-text {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .product-price-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .price-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .current-price {
+            font-size: 36px;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 8px;
+        }
+        
+        .original-price {
+            font-size: 20px;
+            color: #999;
+            text-decoration: line-through;
+            margin-right: 15px;
+        }
+        
+        .discount-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .stock-status {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .in-stock {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .quantity-selector {
+            margin: 30px 0;
+        }
+        
+        .quantity-selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .qty-input {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .qty-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+        
+        .qty-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .qty-number {
+            width: 60px;
+            text-align: center;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .btn-add-cart {
+            flex: 2;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-add-cart:hover {
+            background: #0056b3;
+        }
+        
+        .btn-buy-now {
+            flex: 2;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-buy-now:hover {
+            background: #218838;
+        }
+        
+        .btn-wishlist {
+            flex: 0;
+            background: white;
+            border: 2px solid #ddd;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-wishlist:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+        
+        .product-features {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .product-features h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #555;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .product-tabs {
+            margin-top: 60px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 40px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #007bff;
+        }
+        
+        .tab-btn.active:after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #007bff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .description-content {
+            line-height: 1.8;
+            color: #555;
+            font-size: 15px;
+        }
+        
+        .specifications-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .specifications-table tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .specifications-table td {
+            padding: 15px 10px;
+        }
+        
+        .specifications-table td:first-child {
+            font-weight: 600;
+            color: #333;
+            width: 200px;
+        }
+        
+        .specifications-table td:last-child {
+            color: #666;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #007bff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .product-detail-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .product-images {
+                position: static;
+            }
+            
+            .main-image img {
+                height: 300px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-wishlist {
+                order: -1;
+            }
+            
+            .product-title {
+                font-size: 24px;
+            }
+            
+            .current-price {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-brand">
+            <h1>Unified Wellness</h1>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="/">Home</a>
+            <a href="/products" class="active">Products</a>
+            <a href="/blogs">Blogs</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
+        <a href="/products">Products</a>
+        <span>›</span>
+        <span id="breadcrumbProduct">Product</span>
+    </div>
+
+    <div class="product-detail-container">
+        <!-- Product Images -->
+        <div class="product-images">
+            <div class="main-image">
+                <img id="productImage" src="/static/images/placeholder.jpg" alt="Product">
+            </div>
+            <div class="thumbnail-images">
+                <div class="thumbnail active">
+                    <img src="/static/images/placeholder.jpg" alt="View 1">
+                </div>
+                <div class="thumbnail">
+                    <img src="/static/images/placeholder.jpg" alt="View 2">
+                </div>
+                <div class="thumbnail">
+                    <img src="/static/images/placeholder.jpg" alt="View 3">
+                </div>
+                <div class="thumbnail">
+                    <img src="/static/images/placeholder.jpg" alt="View 4">
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info-section">
+            <span class="category-badge" id="productCategory">Category</span>
+            <h1 class="product-title" id="productName">Product Name</h1>
+            
+            <div class="product-rating">
+                <div class="stars">★★★★☆</div>
+                <span class="rating-text">4.5 (128 reviews)</span>
+            </div>
+
+            <div class="product-price-section">
+                <div class="price-label">Price</div>
+                <div class="current-price" id="productPrice">Rs. 0</div>
+                <div>
+                    <span class="original-price">Rs. 4,999</span>
+                    <span class="discount-badge">20% OFF</span>
+                </div>
+                <div class="stock-status">
+                    <span class="in-stock">✓ In Stock</span>
+                </div>
+            </div>
+
+            <div class="product-features">
+                <h3>Key Features</h3>
+                <ul class="feature-list">
+                    <li>Premium Quality Material</li>
+                    <li>Free Shipping on orders above Rs. 2000</li>
+                    <li>Easy 30-day Returns</li>
+                    <li>1 Year Warranty</li>
+                </ul>
+            </div>
+
+            <div class="quantity-selector">
+                <label>Quantity:</label>
+                <div class="quantity-controls">
+                    <div class="qty-input">
+                        <button class="qty-btn" onclick="decreaseQty()">-</button>
+                        <input type="number" class="qty-number" id="quantity" value="1" min="1" readonly>
+                        <button class="qty-btn" onclick="increaseQty()">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-add-cart" onclick="addToCart()">
+                    Add to Cart
+                </button>
+                <button class="btn-buy-now" onclick="buyNow()">
+                    Buy Now
+                </button>
+                <button class="btn-wishlist" onclick="toggleWishlist()">
+                    ♡
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Tabs -->
+    <div class="product-tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab('description')">Description</button>
+            <button class="tab-btn" onclick="showTab('specifications')">Specifications</button>
+            <button class="tab-btn" onclick="showTab('reviews')">Reviews</button>
+        </div>
+
+        <div id="description" class="tab-content active">
+            <div class="description-content" id="productDescription">
+                Product description will appear here...
+            </div>
+        </div>
+
+        <div id="specifications" class="tab-content">
+            <table class="specifications-table">
+                <tr>
+                    <td>Brand</td>
+                    <td>Unified Wellness</td>
+                </tr>
+                <tr>
+                    <td>Category</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Product ID</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Price</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Listed On</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Warranty</td>
+                    <td>1 Year</td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="reviews" class="tab-content">
+            <h3>Customer Reviews</h3>
+            <p style="color: #666; margin-top: 20px;">Reviews will be displayed here.</p>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/product-detail.js"></script>
+</body>
+</html>

@@ -50,7 +50,6 @@ async function loadUserData() {
         if (!response) return;
         
         const user = await response.json();
-        document.getElementById('userNameNav').textContent = user.name;
         document.getElementById('userAge').textContent = user.age || '--';
         document.getElementById('userHeight').textContent = user.height_cm ? `${user.height_cm} cm` : '--';
         document.getElementById('userWeight').textContent = user.weight_kg ? `${user.weight_kg} kg` : '--';
@@ -272,31 +271,43 @@ async function analyzeFood() {
 
 async function loadRecommendedProducts() {
     try {
-        const response = await fetchWithAuth(`${API_URL}/api/products/recommended`);
-        if (!response) return;
-        
-        const products = await response.json();
-        
-        if (products.length === 0) {
-            document.getElementById('recommendedProducts').innerHTML = '<p>No recommendations available yet</p>';
+        const token = localStorage.getItem('access_token');
+
+        const res = await fetch('/api/products/recommended', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch recommendations');
+
+        const products = await res.json();
+        const container = document.getElementById('recommendedProducts');
+
+        if (!products.length) {
+            container.innerHTML = '<p>No recommendations available</p>';
             return;
         }
-        
-        document.getElementById('recommendedProducts').innerHTML = products.map(p => `
-            <div class="product-card">
-                <h3>${p.name}</h3>
-                <p>${p.description}</p>
-                <div class="product-price">$${p.price.toFixed(2)}</div>
-                <div class="product-category">${p.category}</div>
-                <p style="margin-top: 0.5rem; color: #10b981; font-size: 0.9rem;">
-                    ${p.recommendation_reason}
-                </p>
-            </div>
+
+        container.innerHTML = products.map(p => `
+            <a href="/products/${p.id}" class="product-card">
+                <img src="${p.image_url}" alt="${p.name}">
+                <div class="product-info">
+                    <h4>${p.name}</h4>
+                    <p class="price">Rs. ${p.price.toLocaleString()}</p>
+                    <span class="recommendation-reason">
+                        ${p.recommendation_reason}
+                    </span>
+                </div>
+            </a>
         `).join('');
-    } catch (error) {
-        console.error('Error loading recommendations:', error);
+    } catch (err) {
+        console.error(err);
+        document.getElementById('recommendedProducts').innerHTML =
+            '<p>Error loading recommendations</p>';
     }
 }
+
 
 async function loadSleepHistory() {
     try {

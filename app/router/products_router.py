@@ -12,52 +12,29 @@ router = APIRouter(prefix="/api/products", tags=["Products"])
 
 
 @router.get("", response_model=List[ProductResponse])
-def get_products(search: Optional[str] = None, db: Session = Depends(get_db)):
-    """Get all products"""
+def get_products(
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
     query = db.query(Product)
+
     if search:
         query = query.filter(
-            (Product.name.contains(search)) | (Product.description.contains(search))
+            (Product.name.ilike(f"%{search}%")) |
+            (Product.description.ilike(f"%{search}%"))
         )
-    products = query.order_by(Product.created_at.desc()).all()
-    return products
+
+    if category and category != "ALL":
+        query = query.filter(Product.category == category)
+
+    return query.order_by(Product.created_at.desc()).all()
 
 
-@router.post("", response_model=ProductResponse)
-def create_product(
-    product_data: ProductCreate,
-    db: Session = Depends(get_db),
-    admin: User = Depends(require_admin)
-):
-    """Create a new product (Admin only)"""
-    product = Product(
-        name=product_data.name,
-        description=product_data.description,
-        price=product_data.price,
-        category=product_data.category,
-        created_at=datetime.now()
-    )
-    db.add(product)
-    db.commit()
-    db.refresh(product)
-    return product
-
-
-@router.delete("/{product_id}")
-def delete_product(
-    product_id: int,
-    db: Session = Depends(get_db),
-    admin: User = Depends(require_admin)
-):
-    """Delete a product (Admin only)"""
-    product = db.query(Product).filter(Product.id == product_id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    
-    db.delete(product)
-    db.commit()
-    return {"message": "Product deleted"}
-
+@router.get("/categories", response_model=List[str])
+def get_product_categories(db: Session = Depends(get_db)):
+    categories = db.query(Product.category).distinct().all()
+    return [c[0] for c in categories]
 
 @router.get("/recommended")
 def get_recommended_products(
@@ -86,9 +63,59 @@ def get_recommended_products(
                 "description": product.description,
                 "price": product.price,
                 "category": product.category,
+                "image_url": product.image_url,
                 "created_at": product.created_at,
                 "recommendation_reason": reason
             }
             recommended.append(product_dict)
     
     return recommended[:5]
+
+
+@router.get("/{product_id}", response_model=ProductResponse)
+def get_product_detail(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == product_id).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return product
+
+@router.post("", response_model=ProductResponse)
+def create_product(
+    product_data: ProductCreate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Create a new product (Admin only)"""
+    product = Product(
+        name=product_data.name,
+        description=product_data.description,
+        price=product_data.price,
+        category=product_data.category,
+        image_url=product_data.image_url,
+        created_at=datetime.utcnow()
+    )
+
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    return product
+
+
+@router.delete("/{product_id}")
+def delete_product(
+    product_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Delete a product (Admin only)"""
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    db.delete(product)
+    db.commit()
+    return {"message": "Product deleted"}
+
+

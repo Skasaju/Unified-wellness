@@ -20,16 +20,30 @@
         </div>
     </nav>
 
-    <div class="container">
-        <h1>Health & Fitness Products</h1>
-        
-        <div class="toolbar">
-            <input type="text" id="searchInput" placeholder="Search products..." class="search-input">
-            <button id="searchBtn" class="btn-primary">Search</button>
-        </div>
-        
-        <div id="productGrid" class="product-grid"></div>
+    <div class="container products-page">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <h3>Category</h3>
+            <ul id="categoryList" class="category-list">
+                <li data-category="ALL" class="active">All</li>
+            </ul>
+        </aside>
+
+        <!-- RIGHT CONTENT -->
+        <main class="products-content">
+            <div class="products-header">
+                <h2>Health and Fitness Products</h2>
+
+                <div class="toolbar">
+                    <input type="text" id="searchInput" placeholder="Search gym products">
+                    <button id="searchBtn">Search</button>
+                </div>
+            </div>
+
+            <div id="productGrid" class="product-grid"></div>
+        </main>
     </div>
+
 
     <script src="/static/js/products.js"></script>
 </body>
