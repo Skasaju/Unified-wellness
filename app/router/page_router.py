@@ -21,6 +21,14 @@ async def dashboard_page():
     return FileResponse("static/dashboard.html")
 
 
+@router.get("/nutrition")
+async def nutrition_page():
+    return FileResponse("static/nutrition.html")
+
+@router.get("/workout")
+async def workout_page():
+    return FileResponse("static/workout.html")
+
 @router.get("/products")
 async def products_page():
     return FileResponse("static/products.html")

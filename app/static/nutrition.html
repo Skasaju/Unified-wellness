@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Analyzer - Unified Wellness</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Unified Wellness</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/nutrition" class="active">Nutrition</a>
+                <a href="/workout">Workout</a>
+                <a href="/products">Products</a>
+                <a href="/blogs">Blogs</a>
+                <a href="/profile">Profile</a>
+                <span id="userNameNav"></span>
+                <a href="#" onclick="logout()" class="btn-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container page-container">
+        <div class="page-header">
+            <h1>🥗 AI Nutrition Analyzer</h1>
+            <p class="subtitle">Upload a food image to get detailed nutritional insights powered by AI</p>
+        </div>
+
+        <div class="nutrition-analyzer-container">
+            <div class="upload-section">
+                <div class="upload-card">
+                    <div class="upload-icon">📸</div>
+                    <h3>Upload Food Image</h3>
+                    <p>Take a photo or upload an image of your food</p>
+                    <input type="file" id="foodImage" accept="image/*" class="file-input-hidden">
+                    <label for="foodImage" class="btn-upload">
+                        <span>Choose Image</span>
+                    </label>
+                    <div id="imagePreview" class="image-preview"></div>
+                    <button id="analyzeFood" class="btn-primary btn-analyze" disabled>
+                        <span>🔍</span> Analyze Nutrition
+                    </button>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div id="nutritionResult" class="nutrition-result-card">
+                    <div class="placeholder-state">
+                        <div class="placeholder-icon">🍎</div>
+                        <h3>No Analysis Yet</h3>
+                        <p>Upload a food image to see detailed nutritional breakdown</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nutrition-history-section">
+            <div class="section-header">
+                <h2>📊 Recent Analyses</h2>
+                <button id="clearHistory" class="btn-secondary btn-sm">Clear All</button>
+            </div>
+            <div id="analysisHistory" class="analysis-history-grid"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/nutrition.js"></script>
+</body>
+</html>

@@ -24,6 +24,8 @@ function updateNav() {
         const user = getUser();
         navLinks.innerHTML = `
             <a href="/dashboard">Dashboard</a>
+            <a href="/nutrition">Nutrition</a>
+            <a href="/workout">Workout</a>
             <a href="/products">Products</a>
             <a href="/blogs" class="active">Blogs</a>
             <a href="/profile">Profile</a>

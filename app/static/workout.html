@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Plan - Unified Wellness</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Unified Wellness</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/nutrition">Nutrition</a>
+                <a href="/workout" class="active">Workout</a>
+                <a href="/products">Products</a>
+                <a href="/blogs">Blogs</a>
+                <a href="/profile">Profile</a>
+                <span id="userNameNav"></span>
+                <a href="#" onclick="logout()" class="btn-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container page-container">
+        <div class="page-header">
+            <h1>🏋️ AI Workout Plan Generator</h1>
+            <p class="subtitle">Get a personalized 7-day workout plan based on your profile and goals</p>
+        </div>
+
+        <div class="workout-generator-container">
+            <div class="generator-card">
+                <div class="user-profile-summary">
+                    <h3>Your Profile</h3>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span class="stat-label">Age</span>
+                            <span id="profileAge" class="stat-value">--</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-label">BMI</span>
+                            <span id="profileBMI" class="stat-value">--</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-label">Goals</span>
+                            <span id="profileGoals" class="stat-value">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="generatePlan" class="btn-primary btn-generate">
+                    <span>✨</span> Generate Personalized Plan
+                </button>
+                
+                <div id="loadingState" class="loading-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Creating your personalized workout plan...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="workoutPlanSection" class="workout-plan-section" style="display: none;">
+            <div class="plan-header">
+                <h2>Your Personalized 7-Day Workout Plan</h2>
+                <button id="savePlan" class="btn-secondary">💾 Save Plan</button>
+            </div>
+
+            <div class="weekly-overview-card">
+                <h3>📅 Weekly Overview</h3>
+                <p id="weeklyOverview"></p>
+            </div>
+
+            <div class="daily-plans-container" id="dailyPlansContainer"></div>
+
+            <div class="progression-section">
+                <div class="section-header">
+                    <h2>📈 Progression Strategy</h2>
+                </div>
+                
+                <div class="progression-tabs">
+                    <button class="tab-btn active" data-tab="weekly">Weekly Overview</button>
+                    <button class="tab-btn" data-tab="monthly">Monthly Progression</button>
+                </div>
+                
+                <div class="tab-content active" id="weeklyTab">
+                    <div class="progression-card">
+                        <p id="weeklyOverviewTab"></p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="monthlyTab">
+                    <div class="progression-card">
+                        <p id="monthlyProgressionTab"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <div class="section-header">
+                    <h2>💡 Personalized Tips for Success</h2>
+                </div>
+                <div class="tips-grid" id="personalizedTipsGrid"></div>
+            </div>
+        </div>
+
+        <div class="saved-plans-section">
+            <div class="section-header">
+                <h2>📚 Saved Workout Plans</h2>
+            </div>
+            <div id="savedPlans" class="saved-plans-grid"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/workout.js"></script>
+</body>
+</html>

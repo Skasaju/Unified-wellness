@@ -15,6 +15,8 @@
             </div>
             <div class="nav-links">
                 <a href="/dashboard" class="active">Dashboard</a>
+                <a href="/nutrition">Nutrition</a>
+                <a href="/workout">Workout</a>
                 <a href="/products">Products</a>
                 <a href="/blogs">Blogs</a>
                 <a href="/profile">Profile</a>
@@ -25,112 +27,194 @@
     </nav>
 
     <div class="container dashboard-container">
-        <h1>Health Dashboard</h1>
+        <div class="dashboard-header">
+            <div class="welcome-section">
+                <h1>Welcome back, <span id="userName">User</span>! 👋</h1>
+                <p class="subtitle">Here's your health overview for today</p>
+            </div>
+            <div class="quick-actions">
+                <a href="/nutrition" class="quick-action-btn">
+                    <span class="icon">🥗</span>
+                    <span>Nutrition</span>
+                </a>
+                <a href="/workout" class="quick-action-btn">
+                    <span class="icon">🏋️</span>
+                    <span>Workout</span>
+                </a>
+            </div>
+        </div>
         
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <span>📊</span>
+                </div>
+                <div class="stat-content">
+                    <h3 id="bmiValue">--</h3>
+                    <p>BMI</p>
+                    <span id="bmiCategory" class="stat-badge">--</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <span>⚖️</span>
+                </div>
+                <div class="stat-content">
+                    <h3 id="weightValue">--</h3>
+                    <p>Current Weight</p>
+                    <span class="stat-badge">kg</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <span>📏</span>
+                </div>
+                <div class="stat-content">
+                    <h3 id="heightValue">--</h3>
+                    <p>Height</p>
+                    <span class="stat-badge">cm</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <span>🎯</span>
+                </div>
+                <div class="stat-content">
+                    <h3 id="ageValue">--</h3>
+                    <p>Age</p>
+                    <span class="stat-badge">years</span>
+                </div>
+            </div>
+        </div>
+
         <div class="dashboard-grid">
-            <div class="dashboard-card">
-                <h3>BMI Calculator</h3>
-                <div id="bmiDisplay" class="metric-display">
-                    <div class="metric-value">--</div>
-                    <div class="metric-label">BMI</div>
-                    <div id="bmiCategory" class="metric-category"></div>
+            <div class="dashboard-card featured-card">
+                <div class="card-header">
+                    <h3>❤️ Live Heart Rate Monitor</h3>
+                    <div class="card-actions">
+                        <button id="startHR" class="btn-icon btn-primary">
+                            <span>▶️</span> Start
+                        </button>
+                        <button id="stopHR" class="btn-icon btn-secondary" disabled>
+                            <span>⏹️</span> Stop
+                        </button>
+                    </div>
+                </div>
+                <div class="hr-display">
+                    <div class="current-hr">
+                        <div id="currentBPM" class="bpm-value">-- BPM</div>
+                        <div id="activityStatus" class="activity-badge">Resting</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="heartRateChart"></canvas>
                 </div>
             </div>
             
             <div class="dashboard-card">
-                <h3>Current Stats</h3>
-                <div id="userStats" class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-label">Age:</span>
-                        <span id="userAge">--</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Height:</span>
-                        <span id="userHeight">--</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Weight:</span>
-                        <span id="userWeight">--</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Goals:</span>
-                        <span id="userGoals">--</span>
-                    </div>
+                <div class="card-header">
+                    <h3>⚠️ Health Anomalies</h3>
+                    <button id="checkAnomalies" class="btn-icon btn-secondary">
+                        <span>🔍</span> Check
+                    </button>
                 </div>
+                <div id="anomalyList" class="anomaly-container">
+                    <p class="placeholder-text">Click check to analyze your heart rate data</p>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>💤 Sleep Tracker</h3>
+                </div>
+                <form id="sleepForm" class="modern-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Hours</label>
+                            <input type="number" id="sleepHours" placeholder="8.5" step="0.5" min="0" max="24">
+                        </div>
+                        <div class="form-group">
+                            <label>Quality (1-10)</label>
+                            <input type="number" id="sleepQuality" placeholder="8" min="1" max="10">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">Log Sleep</button>
+                </form>
+                <div id="sleepHistory" class="history-container"></div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>🏃 Workout Logger</h3>
+                </div>
+                <form id="workoutForm" class="modern-form">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="workoutType" class="modern-select">
+                            <option value="cardio">🏃 Cardio</option>
+                            <option value="strength">💪 Strength</option>
+                            <option value="yoga">🧘 Yoga</option>
+                            <option value="sports">⚽ Sports</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Minutes</label>
+                            <input type="number" id="workoutDuration" placeholder="30" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Calories</label>
+                            <input type="number" id="workoutCalories" placeholder="250" min="0">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">Log Workout</button>
+                </form>
+                <div id="workoutHistory" class="history-container"></div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>🍽️ Nutrition Logger</h3>
+                </div>
+                <form id="nutritionForm" class="modern-form">
+                    <div class="form-group">
+                        <label>Food Name</label>
+                        <input type="text" id="foodName" placeholder="Grilled chicken" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Calories</label>
+                            <input type="number" id="calories" placeholder="200" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Protein (g)</label>
+                            <input type="number" id="protein" placeholder="30" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Carbs (g)</label>
+                            <input type="number" id="carbs" placeholder="10" min="0" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Fats (g)</label>
+                            <input type="number" id="fats" placeholder="5" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">Log Food</button>
+                </form>
+                <div id="nutritionHistory" class="history-container"></div>
             </div>
             
             <div class="dashboard-card full-width">
-                <h3>❤️ Live Heart Rate Monitor</h3>
-                <div class="hr-controls">
-                    <button id="startHR" class="btn-primary">Start Monitoring</button>
-                    <button id="stopHR" class="btn-secondary" disabled>Stop Monitoring</button>
-                    <div id="currentBPM" class="current-bpm">-- BPM</div>
-                    <div id="activityStatus" class="activity-status">Resting</div>
+                <div class="card-header">
+                    <h3>🛍️ Recommended Products for You</h3>
+                    <a href="/products" class="btn-link">View All →</a>
                 </div>
-                <canvas id="heartRateChart"></canvas>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>🏋️ AI Workout Plan</h3>
-                <button id="generatePlan" class="btn-primary">Generate Plan</button>
-                <div id="workoutPlan" class="workout-plan"></div>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>⚠️ Anomaly Alerts</h3>
-                <button id="checkAnomalies" class="btn-secondary">Check for Anomalies</button>
-                <div id="anomalyList" class="anomaly-list"></div>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>🥗 Nutrition Analyzer</h3>
-                <input type="file" id="foodImage" accept="image/*" class="file-input">
-                <button id="analyzefood" class="btn-primary">Analyze Food Image</button>
-                <div id="nutritionResult" class="nutrition-result"></div>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>💤 Sleep Tracker</h3>
-                <form id="sleepForm" class="quick-form">
-                    <input type="number" id="sleepHours" placeholder="Hours" step="0.5" min="0" max="24">
-                    <input type="number" id="sleepQuality" placeholder="Quality (1-10)" min="1" max="10">
-                    <button type="submit" class="btn-primary">Log Sleep</button>
-                </form>
-                <div id="sleepHistory" class="history-list"></div>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>🏃 Workout Logger</h3>
-                <form id="workoutForm" class="quick-form">
-                    <select id="workoutType">
-                        <option value="cardio">Cardio</option>
-                        <option value="strength">Strength</option>
-                        <option value="yoga">Yoga</option>
-                        <option value="sports">Sports</option>
-                    </select>
-                    <input type="number" id="workoutDuration" placeholder="Minutes" min="1">
-                    <input type="number" id="workoutCalories" placeholder="Calories" min="0">
-                    <button type="submit" class="btn-primary">Log Workout</button>
-                </form>
-                <div id="workoutHistory" class="history-list"></div>
-            </div>
-            
-            <div class="dashboard-card">
-                <h3>🍽️ Nutrition Logger</h3>
-                <form id="nutritionForm" class="quick-form">
-                    <input type="text" id="foodName" placeholder="Food name" required>
-                    <input type="number" id="calories" placeholder="Calories" min="0">
-                    <input type="number" id="protein" placeholder="Protein (g)" min="0" step="0.1">
-                    <input type="number" id="carbs" placeholder="Carbs (g)" min="0" step="0.1">
-                    <input type="number" id="fats" placeholder="Fats (g)" min="0" step="0.1">
-                    <button type="submit" class="btn-primary">Log Food</button>
-                </form>
-                <div id="nutritionHistory" class="history-list"></div>
-            </div>
-            
-            <div class="dashboard-card full-width">
-                <h3>🛍️ Recommended Products for You</h3>
-                <div id="recommendedProducts" class="product-grid"></div>
+                <div id="recommendedProducts" class="product-grid-modern"></div>
             </div>
         </div>
     </div>
