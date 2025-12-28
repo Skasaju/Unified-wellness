@@ -7,10 +7,10 @@ function getToken() {
     return localStorage.getItem('access_token');
 }
 
-function getUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-}
+// function getUser() {
+//     const user = localStorage.getItem('user');
+//     return user ? JSON.parse(user) : null;
+// }
 
 function logout() {
     localStorage.removeItem('access_token');

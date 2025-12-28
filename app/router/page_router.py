@@ -39,3 +39,17 @@ async def profile_page():
 @router.get("/admin")
 async def admin_page():
     return FileResponse("static/admin.html")
+
+
+
+@router.get("/heart-rate")
+def heart_rate_page():
+    return FileResponse("static/heart-rate.html")
+
+@router.get("/analyzer")
+def analyzer_page():
+    return FileResponse("static/analyzer.html")
+
+# @router.get("/workout")
+# def workout_page():
+#     return FileResponse("static/workout.html")

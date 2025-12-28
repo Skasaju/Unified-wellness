@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Analyzer - Unified Wellness</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .na-page-container {
+            padding: 2rem 0;
+        }
+
+        .na-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .na-title {
+            font-size: 2.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0;
+        }
+
+        .na-icon {
+            font-size: 2.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .na-nav-back {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .na-nav-back:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+
+        .na-main {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .na-section {
+            margin-bottom: 3rem;
+            padding-bottom: 3rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .na-section:last-child {
+            border-bottom: none;
+        }
+
+        .na-section h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .na-upload-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .na-file-input {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .na-file-input input[type="file"] {
+            padding: 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .na-file-input input[type="file"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .na-image-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            background: var(--light);
+            border-radius: 10px;
+            min-height: 250px;
+        }
+
+        .na-image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+        }
+
+        .na-image-preview-empty {
+            color: var(--gray);
+            text-align: center;
+        }
+
+        .na-btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .na-btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .na-btn-primary:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .na-result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .na-result-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .na-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .na-result-label {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .na-result-value {
+            text-align: right;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .na-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .na-stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .na-stat-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .na-stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 0;
+        }
+
+        .na-macros-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .na-macro-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+
+        .na-macro-item h4 {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .na-macro-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .na-form-section {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .na-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .na-form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .na-form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .na-form-group input {
+            padding: 0.8rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .na-form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .na-chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 2rem;
+        }
+
+        .na-history-list {
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .na-history-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 10px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .na-history-item-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .na-history-item-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .na-history-item-details {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .na-history-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .na-scroll-hint {
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .na-upload-area {
+                grid-template-columns: 1fr;
+            }
+
+            .na-macros-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .na-title {
+                font-size: 1.8rem;
+            }
+
+            .na-main {
+                padding: 1.5rem;
+            }
+
+            .na-macros-section {
+                grid-template-columns: 1fr;
+            }
+
+            .na-chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>Unified Wellness</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard" class="">Dashboard</a>
+                <a href="/products">Products</a>
+                <a href="/blogs">Blogs</a>
+                <a href="/profile">Profile</a>
+                <span id="userNameNav"></span>
+                <a href="#" onclick="logout()" class="btn-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container na-page-container">
+        <div class="na-header">
+            <h1 class="na-title">
+                <span class="na-icon">🥗</span>
+                Nutrition Analyzer
+            </h1>
+            <a href="/dashboard" class="na-nav-back">← Back to Dashboard</a>
+        </div>
+
+        <div class="na-main">
+            <!-- Daily Stats Section -->
+            <div class="na-section">
+                <h2>📊 Daily Summary</h2>
+                <div class="na-stats-grid">
+                    <div class="na-stat-card">
+                        <h3>Total Calories</h3>
+                        <div class="value" id="totalCalories">0</div>
+                    </div>
+                    <div class="na-stat-card">
+                        <h3>Total Protein</h3>
+                        <div class="value" id="totalProtein">0<span style="font-size: 0.6em;">g</span></div>
+                    </div>
+                    <div class="na-stat-card">
+                        <h3>Total Carbs</h3>
+                        <div class="value" id="totalCarbs">0<span style="font-size: 0.6em;">g</span></div>
+                    </div>
+                    <div class="na-stat-card">
+                        <h3>Total Fats</h3>
+                        <div class="value" id="totalFats">0<span style="font-size: 0.6em;">g</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Analysis Section -->
+            <div class="na-section">
+                <h2>🖼️ Analyze Food Image</h2>
+                <div class="na-upload-area">
+                    <div class="na-file-input">
+                        <label for="foodImage" style="font-weight: 600; color: var(--dark);">Choose a food image:</label>
+                        <input type="file" id="foodImage" accept="image/*">
+                        <button class="na-btn na-btn-primary" onclick="analyzeImage()">
+                            Analyze Food Image
+                        </button>
+                    </div>
+                    <div class="na-image-preview" id="imagePreview">
+                        <div class="na-image-preview-empty">
+                            <p style="font-size: 3rem; margin: 0;">📸</p>
+                            <p>No image selected</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="analysisResult" style="display: none;">
+                    <div class="na-result-card">
+                        <div class="na-result-item">
+                            <span class="na-result-label">Food:</span>
+                            <span class="na-result-value" id="resultFood">--</span>
+                        </div>
+                        <div class="na-result-item">
+                            <span class="na-result-label">Calories:</span>
+                            <span class="na-result-value" id="resultCalories">-- kcal</span>
+                        </div>
+                        <div class="na-result-item">
+                            <span class="na-result-label">Protein:</span>
+                            <span class="na-result-value" id="resultProtein">-- g</span>
+                        </div>
+                        <div class="na-result-item">
+                            <span class="na-result-label">Carbs:</span>
+                            <span class="na-result-value" id="resultCarbs">-- g</span>
+                        </div>
+                        <div class="na-result-item">
+                            <span class="na-result-label">Fats:</span>
+                            <span class="na-result-value" id="resultFats">-- g</span>
+                        </div>
+                    </div>
+                    <button class="na-btn na-btn-primary" onclick="addAnalyzedFood()">
+                        ✓ Add to Log
+                    </button>
+                </div>
+            </div>
+
+            <!-- Manual Log Section -->
+            <div class="na-section">
+                <h2>✍️ Log Food Manually</h2>
+                <div class="na-form-section">
+                    <div class="na-form-grid">
+                        <div class="na-form-group">
+                            <label for="foodName">Food Name</label>
+                            <input type="text" id="foodName" placeholder="e.g., Chicken Breast">
+                        </div>
+                        <div class="na-form-group">
+                            <label for="foodCalories">Calories</label>
+                            <input type="number" id="foodCalories" placeholder="165" min="0">
+                        </div>
+                        <div class="na-form-group">
+                            <label for="foodProtein">Protein (g)</label>
+                            <input type="number" id="foodProtein" placeholder="31" min="0" step="0.1">
+                        </div>
+                        <div class="na-form-group">
+                            <label for="foodCarbs">Carbs (g)</label>
+                            <input type="number" id="foodCarbs" placeholder="0" min="0" step="0.1">
+                        </div>
+                        <div class="na-form-group">
+                            <label for="foodFats">Fats (g)</label>
+                            <input type="number" id="foodFats" placeholder="3.6" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <button class="na-btn na-btn-primary" onclick="logFood()">Log Food</button>
+                </div>
+            </div>
+
+            <!-- Macronutrient Breakdown -->
+            <div class="na-section">
+                <h2>📈 Macronutrient Breakdown</h2>
+                <div class="na-macros-section">
+                    <div class="na-macro-item">
+                        <h4>Protein</h4>
+                        <p class="na-macro-value" id="proteinPercent">0%</p>
+                    </div>
+                    <div class="na-macro-item">
+                        <h4>Carbs</h4>
+                        <p class="na-macro-value" id="carbsPercent">0%</p>
+                    </div>
+                    <div class="na-macro-item">
+                        <h4>Fats</h4>
+                        <p class="na-macro-value" id="fatsPercent">0%</p>
+                    </div>
+                </div>
+                <div class="na-chart-container">
+                    <canvas id="macroChart"></canvas>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="na-section">
+                <h2>📋 Food Log History</h2>
+                <div class="na-history-list" id="historyList">
+                    <p style="text-align: center; color: var(--gray); padding: 2rem;">No food items logged yet</p>
+                </div>
+                <p class="na-scroll-hint">← Scroll to see all items</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let macroChart = null;
+        let foodLog = [];
+        let currentAnalysis = null;
+
+        function previewImage() {
+            const file = document.getElementById('foodImage').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('imagePreview').innerHTML = 
+                    `<img src="${e.target.result}" alt="Food preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('foodImage').addEventListener('change', previewImage);
+
+        function analyzeImage() {
+            const file = document.getElementById('foodImage').files[0];
+            if (!file) {
+                alert('Please select an image');
+                return;
+            }
+
+            // Mock analysis - replace with actual API call
+            currentAnalysis = {
+                food: 'Pepperoni Pizza',
+                calories: 285,
+                protein: 12,
+                carbs: 36,
+                fats: 10
+            };
+
+            document.getElementById('resultFood').textContent = currentAnalysis.food;
+            document.getElementById('resultCalories').textContent = currentAnalysis.calories + ' kcal';
+            document.getElementById('resultProtein').textContent = currentAnalysis.protein + ' g';
+            document.getElementById('resultCarbs').textContent = currentAnalysis.carbs + ' g';
+            document.getElementById('resultFats').textContent = currentAnalysis.fats + ' g';
+            document.getElementById('analysisResult').style.display = 'block';
+        }
+
+        function addAnalyzedFood() {
+            if (!currentAnalysis) return;
+            
+            foodLog.push({
+                name: currentAnalysis.food,
+                calories: currentAnalysis.calories,
+                protein: currentAnalysis.protein,
+                carbs: currentAnalysis.carbs,
+                fats: currentAnalysis.fats,
+                time: new Date()
+            });
+
+            updateStats();
+            updateChart();
+            updateHistory();
+            document.getElementById('analysisResult').style.display = 'none';
+            document.getElementById('foodImage').value = '';
+            document.getElementById('imagePreview').innerHTML = `
+                <div class="na-image-preview-empty">
+                    <p style="font-size: 3rem; margin: 0;">📸</p>
+                    <p>No image selected</p>
+                </div>
+            `;
+        }
+
+        function logFood() {
+            const name = document.getElementById('foodName').value;
+            const calories = parseInt(document.getElementById('foodCalories').value) || 0;
+            const protein = parseFloat(document.getElementById('foodProtein').value) || 0;
+            const carbs = parseFloat(document.getElementById('foodCarbs').value) || 0;
+            const fats = parseFloat(document.getElementById('foodFats').value) || 0;
+
+            if (!name || !calories) {
+                alert('Please fill in food name and calories');
+                return;
+            }
+
+            foodLog.push({
+                name,
+                calories,
+                protein,
+                carbs,
+                fats,
+                time: new Date()
+            });
+
+            document.getElementById('foodName').value = '';
+            document.getElementById('foodCalories').value = '';
+            document.getElementById('foodProtein').value = '';
+            document.getElementById('foodCarbs').value = '';
+            document.getElementById('foodFats').value = '';
+
+            updateStats();
+            updateChart();
+            updateHistory();
+        }
+
+        function updateStats() {
+            if (foodLog.length === 0) {
+                document.getElementById('totalCalories').textContent = '0';
+                document.getElementById('totalProtein').textContent = '0g';
+                document.getElementById('totalCarbs').textContent = '0g';
+                document.getElementById('totalFats').textContent = '0g';
+                return;
+            }
+
+            const totals = foodLog.reduce((acc, item) => ({
+                calories: acc.calories + item.calories,
+                protein: acc.protein + item.protein,
+                carbs: acc.carbs + item.carbs,
+                fats: acc.fats + item.fats
+            }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+
+            document.getElementById('totalCalories').textContent = totals.calories;
+            document.getElementById('totalProtein').textContent = totals.protein.toFixed(1);
+            document.getElementById('totalCarbs').textContent = totals.carbs.toFixed(1);
+            document.getElementById('totalFats').textContent = totals.fats.toFixed(1);
+
+            updateMacroPercentages(totals);
+        }
+
+        function updateMacroPercentages(totals) {
+            const proteinCal = totals.protein * 4;
+            const carbsCal = totals.carbs * 4;
+            const fatsCal = totals.fats * 9;
+            const total = proteinCal + carbsCal + fatsCal;
+
+            document.getElementById('proteinPercent').textContent = total > 0 ? Math.round((proteinCal/total)*100) + '%' : '0%';
+            document.getElementById('carbsPercent').textContent = total > 0 ? Math.round((carbsCal/total)*100) + '%' : '0%';
+            document.getElementById('fatsPercent').textContent = total > 0 ? Math.round((fatsCal/total)*100) + '%' : '0%';
+        }
+
+        function updateChart() {
+            if (!macroChart) initChart();
+            
+            if (foodLog.length === 0) {
+                macroChart.data.datasets[0].data = [0, 0, 0];
+                macroChart.update();
+                return;
+            }
+
+            const totals = foodLog.reduce((acc, item) => ({
+                protein: acc.protein + item.protein,
+                carbs: acc.carbs + item.carbs,
+                fats: acc.fats + item.fats
+            }), { protein: 0, carbs: 0, fats: 0 });
+
+            const proteinCal = totals.protein * 4;
+            const carbsCal = totals.carbs * 4;
+            const fatsCal = totals.fats * 9;
+
+            macroChart.data.datasets[0].data = [proteinCal, carbsCal, fatsCal];
+            macroChart.update();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('macroChart').getContext('2d');
+            macroChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein (4 cal/g)', 'Carbs (4 cal/g)', 'Fats (9 cal/g)'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderColor: 'white',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: { font: { size: 12 }, color: '#6b7280' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            const items = foodLog.slice().reverse();
+
+            if (items.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 2rem;">No food items logged yet</p>';
+                return;
+            }
+
+            historyList.innerHTML = items.map(item => `
+                <div class="na-history-item">
+                    <div class="na-history-item-content">
+                        <p class="na-history-item-name">${item.name}</p>
+                        <p class="na-history-item-details">${item.calories} cal • P: ${item.protein.toFixed(1)}g • C: ${item.carbs.toFixed(1)}g • F: ${item.fats.toFixed(1)}g</p>
+                        <p class="na-history-item-details">${item.time.toLocaleTimeString()}</p>
+                    </div>
+                    <span class="na-history-badge">${item.calories} kcal</span>
+                </div>
+            `).join('');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
+            window.location.href = '/login';
+        }
+
+        window.addEventListener('load', initChart);
+    </script>
+</body>
+</html>

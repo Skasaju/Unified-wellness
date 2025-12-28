@@ -37,6 +37,7 @@ def start_application():
     app = FastAPI(title=settings.APP_NAME,version=settings.PROJECT_VERSION)
     # Mount static files
     app.mount("/static", StaticFiles(directory="static"), name="static")
+  
     init_db()
     create_admin_user()
     include_router(app)
