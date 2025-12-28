@@ -50,10 +50,15 @@ async function loadUserData() {
         if (!response) return;
         
         const user = await response.json();
-        document.getElementById('userAge').textContent = user.age || '--';
-        document.getElementById('userHeight').textContent = user.height_cm ? `${user.height_cm} cm` : '--';
-        document.getElementById('userWeight').textContent = user.weight_kg ? `${user.weight_kg} kg` : '--';
-        document.getElementById('userGoals').textContent = user.goals || '--';
+        
+        // Update welcome message
+        const firstName = user.email ? user.email.split('@')[0] : 'User';
+        document.getElementById('userName').textContent = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+        
+        // Update stat cards
+        document.getElementById('ageValue').textContent = user.age || '--';
+        document.getElementById('heightValue').textContent = user.height_cm || '--';
+        document.getElementById('weightValue').textContent = user.weight_kg || '--';
         
         loadBMI();
     } catch (error) {
@@ -67,7 +72,8 @@ async function loadBMI() {
         if (!response) return;
         
         const data = await response.json();
-        document.getElementById('bmiDisplay').querySelector('.metric-value').textContent = data.bmi;
+        document.getElementById('bmiValue').textContent = data.bmi;
+        
         const categoryEl = document.getElementById('bmiCategory');
         categoryEl.textContent = data.category;
         
@@ -77,7 +83,7 @@ async function loadBMI() {
             'Overweight': '#f59e0b',
             'Obese': '#ef4444'
         };
-        categoryEl.style.backgroundColor = colors[data.category] + '33';
+        categoryEl.style.backgroundColor = colors[data.category] + '20';
         categoryEl.style.color = colors[data.category];
     } catch (error) {
         console.error('Error loading BMI:', error);
@@ -95,8 +101,11 @@ function initHeartRateChart() {
                 data: [],
                 borderColor: '#ef4444',
                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                borderWidth: 2,
-                tension: 0.4
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 6
             }]
         },
         options: {
@@ -106,7 +115,10 @@ function initHeartRateChart() {
                 y: {
                     beginAtZero: false,
                     min: 50,
-                    max: 180
+                    max: 180,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
                 },
                 x: {
                     display: false
@@ -114,8 +126,11 @@ function initHeartRateChart() {
             },
             plugins: {
                 legend: {
-                    display: true
+                    display: false
                 }
+            },
+            animation: {
+                duration: 0
             }
         }
     });
@@ -132,7 +147,10 @@ function startHeartRateMonitoring() {
         const data = JSON.parse(event.data);
         updateHeartRateChart(data.bpm);
         document.getElementById('currentBPM').textContent = `${data.bpm} BPM`;
-        document.getElementById('activityStatus').textContent = data.activity;
+        
+        const activityEl = document.getElementById('activityStatus');
+        activityEl.textContent = data.activity;
+        activityEl.className = 'activity-badge activity-' + data.activity.toLowerCase().replace(' ', '-');
     };
     
     heartRateWS.onerror = (error) => {
@@ -171,41 +189,9 @@ function updateHeartRateChart(bpm) {
     heartRateChart.update('none');
 }
 
-async function generateWorkoutPlan() {
-    try {
-        document.getElementById('workoutPlan').innerHTML = '<p>Generating personalized workout plan...</p>';
-        const response = await fetchWithAuth(`${API_URL}/api/ai/workout-plan`, {
-            method: 'POST'
-        });
-        
-        if (!response) return;
-        
-        const plan = await response.json();
-        document.getElementById('workoutPlan').innerHTML = `
-            <div style="margin-bottom: 1rem;">
-                <strong>Daily:</strong> ${plan.daily}
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <strong>Weekly:</strong> ${plan.weekly}
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <strong>Monthly:</strong> ${plan.monthly}
-            </div>
-            <div>
-                <strong>Tips:</strong>
-                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
-                    ${plan.tips.map(tip => `<li>${tip}</li>`).join('')}
-                </ul>
-            </div>
-        `;
-    } catch (error) {
-        document.getElementById('workoutPlan').innerHTML = '<p style="color: #ef4444;">Error generating workout plan</p>';
-    }
-}
-
 async function checkAnomalies() {
     try {
-        document.getElementById('anomalyList').innerHTML = '<p>Checking for anomalies...</p>';
+        document.getElementById('anomalyList').innerHTML = '<div class="loading-spinner"></div><p>Analyzing heart rate data...</p>';
         const response = await fetchWithAuth(`${API_URL}/api/heart-rate/anomalies`);
         
         if (!response) return;
@@ -213,59 +199,29 @@ async function checkAnomalies() {
         const data = await response.json();
         
         if (data.anomalies_detected === 0) {
-            document.getElementById('anomalyList').innerHTML = '<p style="color: #10b981;">✓ No anomalies detected</p>';
+            document.getElementById('anomalyList').innerHTML = `
+                <div class="anomaly-success">
+                    <div class="success-icon">✓</div>
+                    <p>No anomalies detected</p>
+                    <span class="success-subtext">Your heart rate is within normal range</span>
+                </div>
+            `;
         } else {
             document.getElementById('anomalyList').innerHTML = data.anomalies.map(a => `
-                <div style="padding: 0.5rem; background: #fee2e2; border-radius: 4px; margin-bottom: 0.5rem;">
-                    <strong>Alert:</strong> ${a.bpm} BPM (z-score: ${a.z_score}, ${a.severity})
+                <div class="anomaly-alert severity-${a.severity.toLowerCase()}">
+                    <div class="anomaly-header">
+                        <span class="anomaly-icon">⚠️</span>
+                        <span class="anomaly-severity">${a.severity}</span>
+                    </div>
+                    <div class="anomaly-details">
+                        <strong>${a.bpm} BPM</strong> detected
+                        <span class="anomaly-score">Z-score: ${a.z_score}</span>
+                    </div>
                 </div>
             `).join('');
         }
     } catch (error) {
-        document.getElementById('anomalyList').innerHTML = '<p style="color: #ef4444;">Error checking anomalies</p>';
-    }
-}
-
-async function analyzeFood() {
-    const fileInput = document.getElementById('foodImage');
-    const file = fileInput.files[0];
-    
-    if (!file) {
-        alert('Please select an image first');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-        document.getElementById('nutritionResult').innerHTML = '<p>Analyzing image...</p>';
-        
-        const token = getToken();
-        const response = await fetch(`${API_URL}/api/ai/nutrition-image`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        if (response.status === 401) {
-            logout();
-            return;
-        }
-        
-        const data = await response.json();
-        document.getElementById('nutritionResult').innerHTML = `
-            <div><strong>Food:</strong> ${data.food_name}</div>
-            <div><strong>Calories:</strong> ${data.calories} kcal</div>
-            <div><strong>Protein:</strong> ${data.protein}g</div>
-            <div><strong>Carbs:</strong> ${data.carbs}g</div>
-            <div><strong>Fats:</strong> ${data.fats}g</div>
-            ${data.portion_size ? `<div><strong>Portion:</strong> ${data.portion_size}</div>` : ''}
-        `;
-    } catch (error) {
-        document.getElementById('nutritionResult').innerHTML = '<p style="color: #ef4444;">Error analyzing image. Make sure OpenAI API key is configured.</p>';
+        document.getElementById('anomalyList').innerHTML = '<p class="error-text">Error checking anomalies</p>';
     }
 }
 
@@ -285,17 +241,19 @@ async function loadRecommendedProducts() {
         const container = document.getElementById('recommendedProducts');
 
         if (!products.length) {
-            container.innerHTML = '<p>No recommendations available</p>';
+            container.innerHTML = '<p class="placeholder-text">No recommendations available</p>';
             return;
         }
 
-        container.innerHTML = products.map(p => `
-            <a href="/products/${p.id}" class="product-card">
-                <img src="${p.image_url}" alt="${p.name}">
-                <div class="product-info">
+        container.innerHTML = products.slice(0, 4).map(p => `
+            <a href="/products/${p.id}" class="product-card-modern">
+                <div class="product-image-wrapper">
+                    <img src="${p.image_url}" alt="${p.name}">
+                </div>
+                <div class="product-info-modern">
                     <h4>${p.name}</h4>
-                    <p class="price">Rs. ${p.price.toLocaleString()}</p>
-                    <span class="recommendation-reason">
+                    <p class="product-price">Rs. ${p.price.toLocaleString()}</p>
+                    <span class="recommendation-badge">
                         ${p.recommendation_reason}
                     </span>
                 </div>
@@ -304,10 +262,9 @@ async function loadRecommendedProducts() {
     } catch (err) {
         console.error(err);
         document.getElementById('recommendedProducts').innerHTML =
-            '<p>Error loading recommendations</p>';
+            '<p class="error-text">Error loading recommendations</p>';
     }
 }
-
 
 async function loadSleepHistory() {
     try {
@@ -315,11 +272,18 @@ async function loadSleepHistory() {
         if (!response) return;
         
         const records = await response.json();
-        document.getElementById('sleepHistory').innerHTML = records.slice(0, 5).map(r => `
-            <div class="history-item">
-                ${new Date(r.date).toLocaleDateString()}: ${r.hours}h (Quality: ${r.quality}/10)
+        const historyHtml = records.slice(0, 5).map(r => `
+            <div class="history-item-modern">
+                <div class="history-icon">💤</div>
+                <div class="history-content">
+                    <span class="history-date">${new Date(r.date).toLocaleDateString()}</span>
+                    <span class="history-value">${r.hours}h</span>
+                    <span class="history-quality">Quality: ${r.quality}/10</span>
+                </div>
             </div>
-        `).join('') || '<p>No sleep records yet</p>';
+        `).join('');
+        
+        document.getElementById('sleepHistory').innerHTML = historyHtml || '<p class="placeholder-text">No sleep records yet</p>';
     } catch (error) {
         console.error('Error loading sleep history:', error);
     }
@@ -331,14 +295,31 @@ async function loadWorkoutHistory() {
         if (!response) return;
         
         const workouts = await response.json();
-        document.getElementById('workoutHistory').innerHTML = workouts.slice(0, 5).map(w => `
-            <div class="history-item">
-                ${new Date(w.date).toLocaleDateString()}: ${w.type} - ${w.duration_min}min (${w.calories_burned} cal)
+        const historyHtml = workouts.slice(0, 5).map(w => `
+            <div class="history-item-modern">
+                <div class="history-icon">${getWorkoutIcon(w.type)}</div>
+                <div class="history-content">
+                    <span class="history-date">${new Date(w.date).toLocaleDateString()}</span>
+                    <span class="history-value">${w.duration_min}min</span>
+                    <span class="history-calories">${w.calories_burned} cal</span>
+                </div>
             </div>
-        `).join('') || '<p>No workouts logged yet</p>';
+        `).join('');
+        
+        document.getElementById('workoutHistory').innerHTML = historyHtml || '<p class="placeholder-text">No workouts logged yet</p>';
     } catch (error) {
         console.error('Error loading workout history:', error);
     }
+}
+
+function getWorkoutIcon(type) {
+    const icons = {
+        cardio: '🏃',
+        strength: '💪',
+        yoga: '🧘',
+        sports: '⚽'
+    };
+    return icons[type] || '🏋️';
 }
 
 async function loadNutritionHistory() {
@@ -347,11 +328,22 @@ async function loadNutritionHistory() {
         if (!response) return;
         
         const nutrition = await response.json();
-        document.getElementById('nutritionHistory').innerHTML = nutrition.slice(0, 5).map(n => `
-            <div class="history-item">
-                ${n.food_name}: ${n.calories} cal (P: ${n.protein}g, C: ${n.carbs}g, F: ${n.fats}g)
+        const historyHtml = nutrition.slice(0, 5).map(n => `
+            <div class="history-item-modern">
+                <div class="history-icon">🍽️</div>
+                <div class="history-content">
+                    <span class="history-title">${n.food_name}</span>
+                    <div class="nutrition-macros">
+                        <span>${n.calories} cal</span>
+                        <span>P: ${n.protein}g</span>
+                        <span>C: ${n.carbs}g</span>
+                        <span>F: ${n.fats}g</span>
+                    </div>
+                </div>
             </div>
-        `).join('') || '<p>No nutrition records yet</p>';
+        `).join('');
+        
+        document.getElementById('nutritionHistory').innerHTML = historyHtml || '<p class="placeholder-text">No nutrition records yet</p>';
     } catch (error) {
         console.error('Error loading nutrition history:', error);
     }
@@ -371,8 +363,9 @@ document.getElementById('sleepForm')?.addEventListener('submit', async (e) => {
         
         e.target.reset();
         loadSleepHistory();
+        showNotification('Sleep logged successfully!', 'success');
     } catch (error) {
-        alert('Error logging sleep');
+        showNotification('Error logging sleep', 'error');
     }
 });
 
@@ -391,8 +384,9 @@ document.getElementById('workoutForm')?.addEventListener('submit', async (e) => 
         
         e.target.reset();
         loadWorkoutHistory();
+        showNotification('Workout logged successfully!', 'success');
     } catch (error) {
-        alert('Error logging workout');
+        showNotification('Error logging workout', 'error');
     }
 });
 
@@ -413,16 +407,27 @@ document.getElementById('nutritionForm')?.addEventListener('submit', async (e) =
         
         e.target.reset();
         loadNutritionHistory();
+        showNotification('Nutrition logged successfully!', 'success');
     } catch (error) {
-        alert('Error logging nutrition');
+        showNotification('Error logging nutrition', 'error');
     }
 });
 
+function showNotification(message, type) {
+    // Simple notification - you can enhance this
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 document.getElementById('startHR')?.addEventListener('click', startHeartRateMonitoring);
 document.getElementById('stopHR')?.addEventListener('click', stopHeartRateMonitoring);
-document.getElementById('generatePlan')?.addEventListener('click', generateWorkoutPlan);
 document.getElementById('checkAnomalies')?.addEventListener('click', checkAnomalies);
-document.getElementById('analyzefood')?.addEventListener('click', analyzeFood);
 
 if (checkAuth()) {
     initHeartRateChart();
