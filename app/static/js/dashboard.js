@@ -2,6 +2,7 @@ const API_URL = '';
 let heartRateChart = null;
 let heartRateWS = null;
 let heartRateData = [];
+let debounceTimer;
 
 function getToken() {
     return localStorage.getItem('access_token');
@@ -349,6 +350,58 @@ async function loadNutritionHistory() {
     }
 }
 
+// ============================================
+// NUTRITION LOGGER - Auto-fill from API
+// ============================================
+
+// Auto-fill nutrition data when typing food name
+const foodNameInput = document.getElementById('foodName');
+if (foodNameInput) {
+    foodNameInput.addEventListener('input', function(e) {
+        const foodName = e.target.value.trim();
+        
+        clearTimeout(debounceTimer);
+        
+        if (foodName.length >= 3) {
+            debounceTimer = setTimeout(() => {
+                fetchNutritionData(foodName);
+            }, 500);
+        }
+    });
+}
+
+async function fetchNutritionData(foodName) {
+    try {
+        // Show loading state (blue border)
+        document.getElementById('foodName').style.borderColor = '#3b82f6';
+        
+        const response = await fetch(`${API_URL}/api/nutrition/search/${encodeURIComponent(foodName)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            // Auto-fill the form fields
+            document.getElementById('calories').value = data.calories;
+            document.getElementById('protein').value = data.protein;
+            document.getElementById('carbs').value = data.carbs;
+            document.getElementById('fats').value = data.fats;
+            
+            // Success border color (green)
+            document.getElementById('foodName').style.borderColor = '#10b981';
+        } else {
+            // Reset border if not found
+            document.getElementById('foodName').style.borderColor = '#e5e7eb';
+        }
+    } catch (error) {
+        console.error('Error fetching nutrition data:', error);
+        // Error border color (red)
+        document.getElementById('foodName').style.borderColor = '#ef4444';
+    }
+}
+
+// ============================================
+// FORM SUBMISSIONS
+// ============================================
+
 document.getElementById('sleepForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const hours = parseFloat(document.getElementById('sleepHours').value);
@@ -393,10 +446,10 @@ document.getElementById('workoutForm')?.addEventListener('submit', async (e) => 
 document.getElementById('nutritionForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const food_name = document.getElementById('foodName').value;
-    const calories = parseFloat(document.getElementById('calories').value);
-    const protein = parseFloat(document.getElementById('protein').value);
-    const carbs = parseFloat(document.getElementById('carbs').value);
-    const fats = parseFloat(document.getElementById('fats').value);
+    const calories = parseFloat(document.getElementById('calories').value) || 0;
+    const protein = parseFloat(document.getElementById('protein').value) || 0;
+    const carbs = parseFloat(document.getElementById('carbs').value) || 0;
+    const fats = parseFloat(document.getElementById('fats').value) || 0;
     
     try {
         await fetchWithAuth(`${API_URL}/api/nutrition`, {
@@ -414,20 +467,72 @@ document.getElementById('nutritionForm')?.addEventListener('submit', async (e) =
 });
 
 function showNotification(message, type) {
-    // Simple notification - you can enhance this
+    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
+    
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    
     document.body.appendChild(notification);
     
+    // Remove after 3 seconds
     setTimeout(() => {
-        notification.remove();
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+
+// Add CSS animation for notifications
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
 
 document.getElementById('startHR')?.addEventListener('click', startHeartRateMonitoring);
 document.getElementById('stopHR')?.addEventListener('click', stopHeartRateMonitoring);
 document.getElementById('checkAnomalies')?.addEventListener('click', checkAnomalies);
+
+// ============================================
+// INITIALIZATION
+// ============================================
 
 if (checkAuth()) {
     initHeartRateChart();

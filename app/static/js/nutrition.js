@@ -1,5 +1,6 @@
-const API_URL = '';
+const API_URL = ''; // Your API base URL (e.g., 'http://localhost:8000')
 let selectedFile = null;
+let debounceTimer;
 
 function getToken() {
     return localStorage.getItem('access_token');
@@ -36,6 +37,133 @@ async function fetchWithAuth(url, options = {}) {
     
     return response;
 }
+
+// ============================================
+// NUTRITION LOGGER - Auto-fill from API
+// ============================================
+
+// Auto-fill nutrition data when typing food name
+document.getElementById('foodName')?.addEventListener('input', function(e) {
+    const foodName = e.target.value.trim();
+    
+    clearTimeout(debounceTimer);
+    
+    if (foodName.length >= 3) {
+        debounceTimer = setTimeout(() => {
+            fetchNutritionData(foodName);
+        }, 500);
+    }
+});
+
+async function fetchNutritionData(foodName) {
+    try {
+        document.getElementById('foodName').style.borderColor = '#3b82f6';
+        
+        const response = await fetch(`${API_URL}/api/nutrition/search/${encodeURIComponent(foodName)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            // Auto-fill the form fields
+            document.getElementById('calories').value = data.calories;
+            document.getElementById('protein').value = data.protein;
+            document.getElementById('carbs').value = data.carbs;
+            document.getElementById('fats').value = data.fats;
+            
+            document.getElementById('foodName').style.borderColor = '#10b981';
+        } else {
+            document.getElementById('foodName').style.borderColor = '#e5e7eb';
+        }
+    } catch (error) {
+        console.error('Error fetching nutrition data:', error);
+        document.getElementById('foodName').style.borderColor = '#ef4444';
+    }
+}
+
+// Handle nutrition form submission
+document.getElementById('nutritionForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const foodData = {
+        food_name: document.getElementById('foodName').value,
+        calories: parseFloat(document.getElementById('calories').value) || 0,
+        protein: parseFloat(document.getElementById('protein').value) || 0,
+        carbs: parseFloat(document.getElementById('carbs').value) || 0,
+        fats: parseFloat(document.getElementById('fats').value) || 0
+    };
+    
+    try {
+        const token = getToken();
+        
+        const response = await fetch(`${API_URL}/api/nutrition`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(foodData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('Food logged successfully!');
+            document.getElementById('nutritionForm').reset();
+            // Optionally reload nutrition list or update stats
+            loadNutritionLogs();
+        } else {
+            alert('Error logging food: ' + (result.detail || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error logging food:', error);
+        alert('Error logging food. Please try again.');
+    }
+});
+
+// Load user's nutrition logs
+async function loadNutritionLogs() {
+    try {
+        const token = getToken();
+        const response = await fetch(`${API_URL}/api/nutrition`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayNutritionLogs(data);
+        }
+    } catch (error) {
+        console.error('Error loading nutrition logs:', error);
+    }
+}
+
+function displayNutritionLogs(logs) {
+    const logsContainer = document.getElementById('nutritionLogs');
+    if (!logsContainer) return;
+    
+    if (logs.length === 0) {
+        logsContainer.innerHTML = '<p class="no-records">No nutrition records yet</p>';
+        return;
+    }
+    
+    logsContainer.innerHTML = logs.map(log => `
+        <div class="log-item">
+            <div class="log-item-header">${log.food_name}</div>
+            <div class="log-item-details">
+                <span>🔥 ${log.calories} cal</span>
+                <span>💪 ${log.protein}g protein</span>
+                <span>🍞 ${log.carbs}g carbs</span>
+                <span>🥑 ${log.fats}g fats</span>
+            </div>
+            <div class="log-date">${new Date(log.date).toLocaleDateString()}</div>
+        </div>
+    `).join('');
+}
+
+// ============================================
+// AI FOOD ANALYZER - Image Analysis
+// ============================================
 
 // Handle file selection
 document.getElementById('foodImage')?.addEventListener('change', (e) => {
@@ -217,13 +345,15 @@ function loadHistory() {
         const history = JSON.parse(localStorage.getItem('nutritionHistory') || '[]');
         const historyDiv = document.getElementById('analysisHistory');
         
+        if (!historyDiv) return;
+        
         if (history.length === 0) {
             historyDiv.innerHTML = '<p class="placeholder-text">No previous analyses</p>';
             return;
         }
         
         historyDiv.innerHTML = history.map((item, index) => `
-            <div class="history-card" onclick="displayNutritionResult(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+            <div class="history-card" onclick='displayNutritionResult(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
                 <div class="history-card-header">
                     <h4>${item.food_name}</h4>
                     <span class="history-date">${new Date(item.timestamp).toLocaleDateString()}</span>
@@ -260,9 +390,12 @@ function clearHistory() {
     }
 }
 
+// Event listeners
 document.getElementById('analyzeFood')?.addEventListener('click', analyzeFood);
 document.getElementById('clearHistory')?.addEventListener('click', clearHistory);
 
+// Initialize on page load
 if (checkAuth()) {
     loadHistory();
+    loadNutritionLogs();
 }
