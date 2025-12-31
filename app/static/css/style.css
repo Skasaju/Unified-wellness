@@ -532,6 +532,14 @@ footer {
     padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 400px;
+    max-height: 400px;
+    min-height: 400px;
+     display: flex;
+    flex-direction: column;
+  
+    /* Prevent overflow from breaking layout */
+    overflow: hidden;
 }
 
 .dashboard-card:hover {
@@ -540,6 +548,9 @@ footer {
 
 .dashboard-card.full-width {
     grid-column: 1 / -1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
 }
 
 .featured-card {
@@ -640,6 +651,9 @@ footer {
 
 .anomaly-container {
     min-height: 150px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .anomaly-success {
@@ -709,6 +723,10 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
 }
 
 .modern-form input,
