@@ -27,7 +27,7 @@ async def search_food(food_name: str):
             response = await client.get(
                 "https://api.nal.usda.gov/fdc/v1/foods/search",
                 params={
-                    "api_key": "DEMO_KEY",  # Replace with your own API key from https://fdc.nal.usda.gov/api-key-signup.html
+                    "api_key": settings.USDA_API_KEY,
                     "query": food_name,
                     "pageSize": 1
                 },

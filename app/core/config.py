@@ -15,5 +15,7 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_DAYS = 7
     
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    
+    USDA_API_KEY: str = os.getenv("USDA_API_KEY")
 
 settings = Settings()
